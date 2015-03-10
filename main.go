@@ -11,22 +11,22 @@ import (
 	"github.com/go-martini/martini"
 )
 
-type Message struct {
-	Url string
+type message struct {
+	url string
 }
 
 func main() {
-	var elasticUrl string
+	var elasticURL string
 	appEnv, enverr := cfenv.Current()
 	if enverr != nil {
-		elasticUrl = "http://localhost:9200"
+		elasticURL = "http://localhost:9200"
 	} else {
 		elasticSearch, err := appEnv.Services.WithTag("elasticsearch")
 		fmt.Println(appEnv)
 		if err == nil {
 			u, _ := url.Parse(elasticSearch[0].Credentials["uri"])
 			password, _ := u.User.Password()
-			elasticUrl = fmt.Sprintf("http://%s/api-key/%s", u.Host, password)
+			elasticURL = fmt.Sprintf("http://%s/api-key/%s", u.Host, password)
 		} else {
 			log.Fatal("Unable to find elastic search service")
 		}
@@ -35,7 +35,7 @@ func main() {
 	m.Get("/config.js", func() string {
 		var buffer bytes.Buffer
 		configTmpl, _ := template.New("config.tmpl").ParseFiles("./config.tmpl")
-		configTmpl.Execute(&buffer, Message{Url: elasticUrl})
+		configTmpl.Execute(&buffer, message{url: elasticURL})
 		return string(buffer.Bytes())
 	})
 	m.Run()
