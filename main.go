@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"text/template"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	cfenv "github.com/cloudfoundry-community/go-cfenvnested"
 	"github.com/go-martini/martini"
 )
 
@@ -24,7 +24,7 @@ func main() {
 		elasticSearch, err := appEnv.Services.WithTag("elasticsearch")
 		fmt.Println(appEnv)
 		if err == nil {
-			u, _ := url.Parse(elasticSearch[0].Credentials["uri"])
+			u, _ := url.Parse(elasticSearch[0].Credentials["uri"].(string))
 			password, _ := u.User.Password()
 			elasticURL = fmt.Sprintf("http://%s/api-key/%s", u.Host, password)
 		} else {
