@@ -60,7 +60,9 @@ func main() {
 	})
 
 	elasticsearchProxy := func(w http.ResponseWriter, r *http.Request) {
-		remote, err := url.Parse(elasticBackendURL)
+		proxyURL := elasticBackendURL + "/" + r.URL.Path[15:]
+		fmt.Println("proxy:", proxyURL)
+		remote, err := url.Parse(proxyURL)
 		if err != nil {
 			panic(err)
 		}
@@ -71,8 +73,9 @@ func main() {
 	}
 
 	// Proxy requests to Elastic Search
-	m.Get("/elasticsearch", elasticsearchProxy)
-	m.Post("/elasticsearch", elasticsearchProxy)
+	m.Group("/elasticsearch", func(r martini.Router) {
+		r.NotFound(elasticsearchProxy)
+	})
 
 	m.Run()
 }
