@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"text/template"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenvnested"
@@ -12,7 +14,7 @@ import (
 )
 
 type Message struct {
-	Url string
+	ProxyUrl string
 }
 
 type FilterApps struct {
@@ -21,41 +23,33 @@ type FilterApps struct {
 
 func main() {
 	fmt.Println("Loading configuration...")
-	var elasticURL string
+	var elasticBackendURL string
+	var elasticProxyURL string
 	var selfAppID = ""
 	appEnv, enverr := cfenv.Current()
 	if enverr != nil {
-		elasticURL = "http://localhost:9200"
+		elasticBackendURL = "http://localhost:9200"
+		elasticProxyURL = "http://localhost:3000/elasticsearch"
 	} else {
-		proxyURI := os.Getenv("ES_PROXY")
-		if proxyURI == "" {
-			log.Println("Set $ES_PROXY to the hostname of the shared proxy into backend Elastic Search")
-		}
-
 		logstash, err := appEnv.Services.WithTag("logstash")
 		if err == nil {
 			hostname := logstash[0].Credentials["hostname"].(string)
 			ports := logstash[0].Credentials["ports"].(map[string]interface{})
 			elasticSearchPort := ports["9200/tcp"]
-			elasticURL = fmt.Sprintf("http://%s/%s:%s", proxyURI, hostname, elasticSearchPort)
+			elasticBackendURL = fmt.Sprintf("http://%s:%s", hostname, elasticSearchPort)
 		} else {
 			log.Fatal("Unable to find elastic search service")
 		}
 
+		elasticProxyURL = fmt.Sprintf("http://%s/elasticsearch", appEnv.ApplicationURIs[0])
 		selfAppID = appEnv.ApplicationID
 	}
-	fmt.Printf("Starting kibana to backend elastic search %s...\n", elasticURL)
+	fmt.Printf("Starting kibana to backend elastic search %s...\n", elasticBackendURL)
 	m := martini.Classic()
 	m.Get("/config.js", func() string {
 		var buffer bytes.Buffer
 		configTmpl, _ := template.New("config.tmpl").ParseFiles("./config.tmpl")
-		configTmpl.Execute(&buffer, Message{Url: elasticURL})
-		return string(buffer.Bytes())
-	})
-	m.Get("/dashboards/app-logs.json", func() string {
-		var buffer bytes.Buffer
-		configTmpl, _ := template.New("app-logs.tmpl").Delims("[{", "}]").ParseFiles("./app-logs.tmpl")
-		configTmpl.Execute(&buffer, FilterApps{SelfAppID: selfAppID})
+		configTmpl.Execute(&buffer, Message{ProxyUrl: elasticProxyURL})
 		return string(buffer.Bytes())
 	})
 	m.Get("/app/dashboards/app-logs.json", func() string {
@@ -64,5 +58,21 @@ func main() {
 		configTmpl.Execute(&buffer, FilterApps{SelfAppID: selfAppID})
 		return string(buffer.Bytes())
 	})
+
+	elasticsearchProxy := func(w http.ResponseWriter, r *http.Request) {
+		remote, err := url.Parse(elasticBackendURL)
+		if err != nil {
+			panic(err)
+		}
+
+		proxy := httputil.NewSingleHostReverseProxy(remote)
+		r.URL.Path = "/"
+		proxy.ServeHTTP(w, r)
+	}
+
+	// Proxy requests to Elastic Search
+	m.Get("/elasticsearch", elasticsearchProxy)
+	m.Post("/elasticsearch", elasticsearchProxy)
+
 	m.Run()
 }

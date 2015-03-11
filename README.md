@@ -27,29 +27,11 @@ Usage
 go get github.com/cloudfoundry-community/kibana-me-logs
 cd $GOPATH/src/github.com/cloudfoundry-community/kibana-me-logs
 cf push kibana-myapp --no-start
-cf set-env kibana-myapp ES_PROXY <proxy-url>
 cf bs kibana-myapp my-logstash-service
 cf start kibana-myapp
 ```
 
 Now view your Kibana UI in your browser. It should redirect to a url like `http://kibana-myapp.apps.1.2.3.4.xip.io/#/dashboard/file/logstash.json` automatically and start showing your logs.
-
-See below for `<proxy-url>`.
-
-Requirements
-------------
-
-This app currently requests a separate proxy app that Kibana will use to access Elastic Search.
-
-```
-go get github.com/longnguyen11288/proxy
-cd $GOPATH/src/github.com/longnguyen11288/proxy
-cf push proxy
-```
-
-The terminal will show the proxy URL, such as `proxy.apps.1.2.3.4.xip.io`
-
-The proxy app will be shared by all users. See "security weaknesses" above.
 
 Debugging
 ---------
