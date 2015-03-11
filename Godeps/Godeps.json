@@ -4,8 +4,8 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/cloudfoundry-community/go-cfenvnested",
-			"Comment": "v1.11-2-g61845c0",
-			"Rev": "61845c0270db1ce565bfb37c54b18ff0ef784755"
+			"Comment": "v1.11-3-g2ac32ef",
+			"Rev": "2ac32ef31285910ea81876d9989b78f74b9c5b81"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/inject",

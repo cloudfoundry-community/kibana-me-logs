@@ -2,7 +2,7 @@ define(['settings'],
 function (Settings) {
   return new Settings({
     elasticsearch: "{{ .Url }}",
-    default_route     : '/dashboard/file/default.json',
+    default_route: '/dashboard/file/app-logs.json',
     kibana_index: "kibana-int",
     panel_names: [
       'histogram',
