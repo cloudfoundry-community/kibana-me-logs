@@ -26,18 +26,56 @@ It requires the running of a shared proxy that grants users access to any backen
 
 But, it might provide you something useful in the meantime. Users can see and search their logs. And each other's logs.
 
+Assumptions
+-----------
+
+It is assumed that:
+
+-	you already have an application running on your own Cloud Foundry
+-	you are using the Docker/Logstash Service Broker (see below) or a service broker that provides matching credentials schema
+-	you have already bound your application to your logstash service instance and Cloud Foundry is already draining logs into it
+-	you have the Go programming language installed on your machine
+
+For example:
+
+```
+cf create-service logstash14 free my-logstash-service
+cf bind-service my-app my-logstash-service
+cf restart my-app
+```
+
+You can confirm that your application is bound to the service:
+
+```
+$ cf services
+Getting services in org system / space dev as admin...
+OK
+
+name                  service      plan   bound apps   status
+my-logstash-service   logstash14   free   my-app       available
+```
+
 Usage
 -----
 
+To view your application's logs in Kibana you need to deploy the `kibana-me-logs` application and also bind it to the same `my-logstash-service` service instance as above:
+
 ```
-go get github.com/cloudfoundry-community/kibana-me-logs
-cd $GOPATH/src/github.com/cloudfoundry-community/kibana-me-logs
-cf push kibana-myapp --no-start
+git clone https://github.com/cloudfoundry-community/kibana-me-logs
+cd kibana-me-logs
+cf push kibana-myapp --no-start --random-route
 cf bs kibana-myapp my-logstash-service
 cf start kibana-myapp
 ```
 
 Now view your Kibana UI in your browser. It should redirect to a url like `http://kibana-myapp.apps.1.2.3.4.xip.io/#/dashboard/file/logstash.json` automatically and start showing your logs.
+
+If you are a regular Go user, you can also fetch the application using:
+
+```
+go get github.com/cloudfoundry-community/kibana-me-logs
+cd $GOPATH/src/github.com/cloudfoundry-community/kibana-me-logs
+```
 
 Docker/Logstash Service Broker
 ------------------------------
@@ -46,7 +84,7 @@ A requirement for this application is that the service binding credentials to lo
 
 The easiest way to deploy this service broker is with the docker-services-boshworkspace.
 
-See its README for detailed instructions.
+See its README for detailed setup instructions for administrators.
 
 When running `bosh setup deployment` choose "Logstash 1.4" as the service to be deployed.
 
@@ -57,15 +95,22 @@ If you are building your own service broker for Logstash/Elastic Search, then th
 
 ```json
 {
-  "hostname": "10.10.5.251",
-  "ports": {
-   "514/tcp": "49160",
-   "9200/tcp": "49161",
-   "9300/tcp": "49159"
-  }
+  "name": "my-logstash-service",
+  "credentials": {
+    "hostname": "10.10.5.251",
+    "ports": {
+     "514/tcp": "49160",
+     "9200/tcp": "49161",
+     "9300/tcp": "49159"
+    }
+  },
+  "syslog_drain_url": "http://10.10.5.251:49160",
+  ...
 }
 ```
 
 The `9200/tcp` port is the port for the Elastic Search API.
 
 If your Elastic Search API is hosted on a different hostname than the remainder of the ELK cluster then please submit a PR/issue so we can discuss what to do next. Happy to help.
+
+Your service bindings should also include a `syslog_drain_url` URI. Cloud Foundry will use this to automatically setup a continuous syslog drain of your application's logs into your logstash/elastic search service instance.
