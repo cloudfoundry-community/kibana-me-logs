@@ -4,38 +4,39 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"net/url"
 	"text/template"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenvnested"
 	"github.com/go-martini/martini"
 )
 
-type message struct {
-	url string
+type Message struct {
+	Url string
 }
 
 func main() {
+	fmt.Println("Loading configuration...")
 	var elasticURL string
 	appEnv, enverr := cfenv.Current()
 	if enverr != nil {
 		elasticURL = "http://localhost:9200"
 	} else {
-		elasticSearch, err := appEnv.Services.WithTag("elasticsearch")
-		fmt.Println(appEnv)
+		logstash, err := appEnv.Services.WithTag("logstash")
 		if err == nil {
-			u, _ := url.Parse(elasticSearch[0].Credentials["uri"].(string))
-			password, _ := u.User.Password()
-			elasticURL = fmt.Sprintf("http://%s/api-key/%s", u.Host, password)
+			hostname := logstash[0].Credentials["hostname"].(string)
+			ports := logstash[0].Credentials["ports"].(map[string]interface{})
+			elasticSearchPort := ports["9200/tcp"]
+			elasticURL = fmt.Sprintf("http://%s:%s", hostname, elasticSearchPort)
 		} else {
 			log.Fatal("Unable to find elastic search service")
 		}
 	}
+	fmt.Printf("Starting kibana to backend elastic search %s...\n", elasticURL)
 	m := martini.Classic()
 	m.Get("/config.js", func() string {
 		var buffer bytes.Buffer
 		configTmpl, _ := template.New("config.tmpl").ParseFiles("./config.tmpl")
-		configTmpl.Execute(&buffer, message{url: elasticURL})
+		configTmpl.Execute(&buffer, Message{Url: elasticURL})
 		return string(buffer.Bytes())
 	})
 	m.Run()

@@ -1,1 +1,1 @@
-web: gopher-kibana
+web: kibana-me-logs
