@@ -15,6 +15,8 @@ The application hosts Kibana 3 and a proxy that binds to your Logstash/Elastic S
 
 This is a work-in-progress and/or a stop-gap until a better multi-tenant solution exists. It's primary weakness is it lacks authentication.
 
+It assumes that users are getting Logstash via the Docker/Logstash Service Broker. See below for details.
+
 Security weaknesses
 -------------------
 
@@ -37,7 +39,33 @@ cf start kibana-myapp
 
 Now view your Kibana UI in your browser. It should redirect to a url like `http://kibana-myapp.apps.1.2.3.4.xip.io/#/dashboard/file/logstash.json` automatically and start showing your logs.
 
-Debugging
----------
+Docker/Logstash Service Broker
+------------------------------
 
--	"My Kibana dashboard is blank." It is possible you are not running the proxy above; or you haven't set the `$ES_PROXY` variable to the proxy hostname. See "Usage" above.
+A requirement for this application is that the service binding credentials to logstash/elasticsearch fit a certain schema. This is the schema that comes from the Docker/Logstash Service Broker.
+
+The easiest way to deploy this service broker is with the docker-services-boshworkspace.
+
+See its README for detailed instructions.
+
+When running `bosh setup deployment` choose "Logstash 1.4" as the service to be deployed.
+
+Logstash Service Brokers
+------------------------
+
+If you are building your own service broker for Logstash/Elastic Search, then this application assumes that the binding credentials look like:
+
+```json
+{
+  "hostname": "10.10.5.251",
+  "ports": {
+   "514/tcp": "49160",
+   "9200/tcp": "49161",
+   "9300/tcp": "49159"
+  }
+}
+```
+
+The `9200/tcp` port is the port for the Elastic Search API.
+
+If your Elastic Search API is hosted on a different hostname than the remainder of the ELK cluster then please submit a PR/issue so we can discuss what to do next. Happy to help.
