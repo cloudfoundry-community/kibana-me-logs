@@ -9,7 +9,7 @@ Draining logs from your Cloud Foundry hosted application to a backend Logstash/E
 
 **Line-by-line logs**
 
-![line-by-line](http://cl.ly/image/2k0K3t0g1V0V/line-by-line_logs.png)
+![line-by-line](http://cl.ly/image/3M2U3A3u1v0S/line-by-line_logs.png)
 
 The application hosts Kibana 3 and a proxy that binds to your Logstash/Elastic Search backend service. You can now see your logs in Kibana!
 
