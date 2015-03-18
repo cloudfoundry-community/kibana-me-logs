@@ -61,7 +61,7 @@ Usage
 To view your application's logs in Kibana you need to deploy the `kibana-me-logs` application and also bind it to the same `my-logstash-service` service instance as above:
 
 ```
-cd /tmp
+cd /tmp; rm -rf kibana-me-logs
 git clone https://github.com/cloudfoundry-community/kibana-me-logs
 cd kibana-me-logs
 cf push kibana-myapp --no-start --random-route -b https://github.com/cloudfoundry/go-buildpack
