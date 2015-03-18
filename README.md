@@ -17,6 +17,15 @@ This is a work-in-progress and/or a stop-gap until a better multi-tenant solutio
 
 It assumes that users are getting Logstash via the Docker/Logstash Service Broker. See below for details.
 
+View logs for a specific app
+----------------------------
+
+If you are binding one logstash service to many applications in a space, then you might want a way to only see the logs for one app at a time.
+
+`http://kibana.DOMAIN/#/dashboard/file/app-logs-01a4ad6a-51b1-450b-ab8d-ef5b836bb8cb.json`
+
+Put the GUID for the application into the URL above.
+
 Security weaknesses
 -------------------
 

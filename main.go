@@ -19,6 +19,7 @@ type Message struct {
 
 type FilterApps struct {
 	SelfAppID string
+	AppID     string
 }
 
 func main() {
@@ -52,10 +53,17 @@ func main() {
 		configTmpl.Execute(&buffer, Message{ProxyUrl: elasticProxyURL})
 		return string(buffer.Bytes())
 	})
-	m.Get("/app/dashboards/app-logs.json", func() string {
+	m.Get("/app/dashboards/apps-logs.json", func() string {
 		var buffer bytes.Buffer
-		configTmpl, _ := template.New("app-logs.tmpl").Delims("[{", "}]").ParseFiles("./app-logs.tmpl")
+		configTmpl, _ := template.New("apps-logs.tmpl").Delims("[{", "}]").ParseFiles("./apps-logs.tmpl")
 		configTmpl.Execute(&buffer, FilterApps{SelfAppID: selfAppID})
+		return string(buffer.Bytes())
+	})
+	m.Get("/app/dashboards/app-logs-:app_guid.json", func(params martini.Params) string {
+		var buffer bytes.Buffer
+		appGUID := params["app_guid"]
+		configTmpl, _ := template.New("app-logs.tmpl").Delims("[{", "}]").ParseFiles("./app-logs.tmpl")
+		configTmpl.Execute(&buffer, FilterApps{SelfAppID: selfAppID, AppID: appGUID})
 		return string(buffer.Bytes())
 	})
 
