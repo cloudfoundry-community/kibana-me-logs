@@ -18,7 +18,8 @@ function upgrade_app {
   space_name=$(cf curl $space_url | jq -r -c .entity.name)
   org_url=$(cf curl $space_url | jq -r -c .entity.organization_url)
   org_name=$(cf curl $org_url | jq -r -c .entity.name)
-  echo $org_name $space_name $app_name
+  echo "cf target -o $org_name -s $space_name; cf push $app_name"
+  cf target -o $org_name -s $space_name; cf push $app_name
 }
 
 app_urls=$(cf curl /v2/apps | jq -r -c ".resources[].metadata.url")
