@@ -1,6 +1,7 @@
 #!/bin/bash
 
 EXPECTED_START_COMMAND="kibana-me-logs"
+RESULTS_PER_PAGE=${RESULTS_PER_PAGE:-10}
 
 if [[ "$(which cf)X" == "X" ]]; then
   echo "Please install cf"
@@ -22,11 +23,16 @@ function upgrade_app {
   cf target -o $org_name -s $space_name; cf push $app_name
 }
 
-app_urls=$(cf curl /v2/apps | jq -r -c ".resources[].metadata.url")
-for app_url in $app_urls; do
-  app=$(cf curl $app_url | jq -r -c .)
-  detected_start_command=$(echo $app | jq -r -c .entity.detected_start_command)
-  if [[ "${detected_start_command}" == "${EXPECTED_START_COMMAND}" ]]; then
-    upgrade_app $app
-  fi
+next_url="/v2/apps?results-per-page=${RESULTS_PER_PAGE}"
+while [[ "${next_url}" != "null" ]]; do
+  cf curl ${next_url}
+  app_urls=$(cf curl ${next_url} | jq -r -c ".resources[].metadata.url")
+  for app_url in $app_urls; do
+    app=$(cf curl $app_url | jq -r -c .)
+    detected_start_command=$(echo $app | jq -r -c .entity.detected_start_command)
+    if [[ "${detected_start_command}" == "${EXPECTED_START_COMMAND}" ]]; then
+      upgrade_app $app
+    fi
+  done
+  next_url=$(cf curl ${next_url} | jq -r -c ".next_url")
 done
