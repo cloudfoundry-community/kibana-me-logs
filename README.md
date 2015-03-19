@@ -17,6 +17,10 @@ This is a work-in-progress and/or a stop-gap until a better multi-tenant solutio
 
 It assumes that users are getting Logstash via the Docker/Logstash Service Broker. See below for details.
 
+For users, there is the complimentary `cf kibana-me-logs` CLI plugin https://github.com/cloudfoundry-community/cf-plugin-kibana-me-logs
+
+For administrators, there is `./bin/upgrade-all.sh` to systematically upgrade all kibana-me-logs applications on your Cloud Foundry.
+
 View logs for a specific app
 ----------------------------
 
