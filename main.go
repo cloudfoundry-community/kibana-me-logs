@@ -42,7 +42,7 @@ func main() {
 			log.Fatal("Unable to find elastic search service")
 		}
 
-		elasticProxyURL = fmt.Sprintf("http://%s/elasticsearch", appEnv.ApplicationURIs[0])
+		elasticProxyURL = fmt.Sprintf("//%s/elasticsearch", appEnv.ApplicationURIs[0])
 		selfAppID = appEnv.ApplicationID
 	}
 	fmt.Printf("Starting kibana to backend elastic search %s...\n", elasticBackendURL)
