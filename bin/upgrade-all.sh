@@ -48,7 +48,7 @@ while [[ "${next_url}" != "null" ]]; do
     org_url=$(cat $(cf_curl $space_url) | jq -r -c .entity.organization_url)
     org_name=$(cat $(cf_curl $org_url) | jq -r -c .entity.name)
     detected_start_command=$(cat $(cf_curl $app_url) | jq -r -c .entity.detected_start_command)
-    echo -n "Checking app '${app_name} in '${org_name}/${space_name}'..."
+    echo -n "Checking app '${app_name}' in '${org_name}/${space_name}'..."
     if [[ "${detected_start_command}" == "${EXPECTED_START_COMMAND}" ]]; then
       if [[ -z ${DRY_RUN} || ${DRY_RUN} == '0' ]]; then
         echo -e "\033[0;32mUPGRADING\033[0m"
