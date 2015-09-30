@@ -18,6 +18,10 @@
 			"Rev": "bd8578f41c9b53278c4ada731fe5beac03f80d77"
 		},
 		{
+			"ImportPath": "github.com/martini-contrib/auth",
+			"Rev": "fa62c19b7ae87da370242054c8beb11af31d327f"
+		},
+		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
 			"Rev": "442e588f213303bec7936deba67901f8fc8f18b1"
 		}
