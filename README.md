@@ -33,13 +33,13 @@ Put the GUID for the application into the URL above.
 Authentication
 --------------
 
-If you provide `kibana-me-logs` the `KIBANA_USERNAME and `KIBANA_PASSWORD` environment variables,
-it will use them as HTTP Basic Auth credentials, to help secure your log data.
+If you provide `kibana-me-logs` the `KIBANA_USERNAME` and `KIBANA_PASSWORD` environment variables
+it will use them as HTTP Basic Auth credentials to help secure your log data.
 
 Security weaknesses
 -------------------
 
-If you do not  use SSL to connect to kibana-me-logs, and are using the HTTP Basic Auth,
+If you do not  use SSL to connect to kibana-me-logs and are using the HTTP Basic Auth,
 your credentials will not be encrypted.
 
 It requires the running of a shared proxy that grants users access to any backend service. Currently it doesn't have any authentication pass-thru.
