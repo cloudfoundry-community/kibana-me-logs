@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"text/template"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenvnested"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/auth"
 )
 
 type Message struct {
@@ -85,5 +87,10 @@ func main() {
 		r.NotFound(elasticsearchProxy)
 	})
 
+	user := os.Getenv("KIBANA_USERNAME")
+	pass := os.Getenv("KIBANA_PASSWORD")
+	if user != "" && pass != "" {
+		m.Use(auth.Basic(user, pass))
+	}
 	m.Run()
 }
