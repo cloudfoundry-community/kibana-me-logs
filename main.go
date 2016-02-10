@@ -37,9 +37,11 @@ func main() {
 		logstash, err := appEnv.Services.WithTag("logstash")
 		if err == nil {
 			hostname := logstash[0].Credentials["hostname"].(string)
+			password := logstash[0].Credentials["password"].(string)
+			username := logstash[0].Credentials["username"].(string)
 			ports := logstash[0].Credentials["ports"].(map[string]interface{})
 			elasticSearchPort := ports["9200/tcp"]
-			elasticBackendURL = fmt.Sprintf("http://%s:%s", hostname, elasticSearchPort)
+			elasticBackendURL = fmt.Sprintf("http://%s:%s@%s:%s", username, password, hostname, elasticSearchPort)
 		} else {
 			log.Fatal("Unable to find elastic search service")
 		}
