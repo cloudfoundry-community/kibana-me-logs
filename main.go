@@ -41,7 +41,11 @@ func main() {
 			username := logstash[0].Credentials["username"].(string)
 			ports := logstash[0].Credentials["ports"].(map[string]interface{})
 			elasticSearchPort := ports["9200/tcp"]
+			if username != "" && password != "" {
 			elasticBackendURL = fmt.Sprintf("http://%s:%s@%s:%s", username, password, hostname, elasticSearchPort)
+			//fmt.Printf("Starting kibana to backend elastic search %s...\n", elasticBackendURL)
+	 	        }
+			elasticBackendURL = fmt.Sprintf("http://%s:%s", hostname, elasticSearchPort)
 		} else {
 			log.Fatal("Unable to find elastic search service")
 		}
