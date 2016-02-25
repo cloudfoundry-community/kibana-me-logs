@@ -74,14 +74,15 @@ func main() {
 		fmt.Println("proxy:", proxyURL)
 			logstash1, err := appEnv.Services.WithTag("logstash")
 			if err == nil {
-				fmt.Println("getting username and password")
+				var username string
+				var password string
+				var ok bool
 				username, ok := logstash1[0].Credentials["username"]
-				if ok {
-					username = logstash1[0].Credentials["username"].(string)
+				if username, ok = logstash1[0].Credentials["username"].(string); !ok {
+   				fmt.Println("Unsupported non-string value found for ElasticSearch username")
 				}
-				password, ok := logstash1[0].Credentials["password"]
-				if ok {
-					password = logstash1[0].Credentials["password"].(string)
+				if password, ok = logstash1[0].Credentials["password"].(string); !ok {
+   				fmt.Println("Unsupported non-string value found for ElasticSearch password")
 				}
 				if username != "" && password != "" {
 					fmt.Println("I am setting header")
