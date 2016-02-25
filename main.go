@@ -77,7 +77,6 @@ func main() {
 				var username string
 				var password string
 				var ok bool
-				username, ok := logstash1[0].Credentials["username"]
 				if username, ok = logstash1[0].Credentials["username"].(string); !ok {
    				fmt.Println("Unsupported non-string value found for ElasticSearch username")
 				}
