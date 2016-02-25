@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"text/template"
+	"encoding/base64"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenvnested"
 	"github.com/go-martini/martini"
