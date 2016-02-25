@@ -72,6 +72,25 @@ func main() {
 	elasticsearchProxy := func(w http.ResponseWriter, r *http.Request) {
 		proxyURL := elasticBackendURL + "/" + r.URL.Path[15:]
 		fmt.Println("proxy:", proxyURL)
+			logstash1, err := appEnv.Services.WithTag("logstash")
+			if err == nil {
+				var username string
+				var password string
+				var ok bool
+				if username, ok = logstash1[0].Credentials["username"].(string); !ok {
+   				fmt.Println("Unsupported non-string value found for ElasticSearch username")
+				}
+				if password, ok = logstash1[0].Credentials["password"].(string); !ok {
+   				fmt.Println("Unsupported non-string value found for ElasticSearch password")
+				}
+				if username != "" && password != "" {
+					fmt.Println("I am setting header")
+					elasticsearchAuth := fmt.Sprintf("%s:%s", username, password)
+					encodedelasticsearchAuth :=  base64.StdEncoding.EncodeToString([]byte(elasticsearchAuth))
+					BasicAuth := fmt.Sprintf("%s %s", "Basic" , encodedelasticsearchAuth)
+					r.Header.Set ("Authorization" , BasicAuth)
+				}
+			}
 		remote, err := url.Parse(proxyURL)
 		if err != nil {
 			panic(err)
